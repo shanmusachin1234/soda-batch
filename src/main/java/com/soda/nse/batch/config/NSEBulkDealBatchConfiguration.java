@@ -1,8 +1,12 @@
 package com.soda.nse.batch.config;
 
 import com.soda.nse.batch.model.NSEBulkDeal;
+import com.soda.nse.batch.util.BeanWrapperFieldSetMapperCustom;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.item.file.MultiResourceItemReader;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.batch.core.configuration.annotation.DefaultBatchConfigurer;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
@@ -20,6 +24,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 @EnableBatchProcessing
@@ -45,15 +52,25 @@ public class NSEBulkDealBatchConfiguration extends DefaultBatchConfigurer {
     }
 
     @Bean
-    public FlatFileItemReader<NSEBulkDeal> itemReader(@Value("${input}") Resource resource) {
-        System.out.println("xssgoddddddd ....");
+    public ItemReader<NSEBulkDeal> itemReader(@Value("${input}") String nseBulkData) {
+        Resource[] resources = null;
+        ResourcePatternResolver patternResolver = new PathMatchingResourcePatternResolver();
+        try {
+            resources = patternResolver.getResources(nseBulkData + "/**/*.csv");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        MultiResourceItemReader<NSEBulkDeal> reader = new MultiResourceItemReader<>();
+        reader.setResources(resources);
+
         FlatFileItemReader<NSEBulkDeal> flatFileItemReader = new FlatFileItemReader<>();
-        flatFileItemReader.setResource(resource);
         flatFileItemReader.setName("CSV-Reader");
         flatFileItemReader.setLinesToSkip(1);
         flatFileItemReader.setLineMapper(lineMapper());
 
-        return flatFileItemReader;
+        reader.setDelegate(flatFileItemReader);
+
+        return reader;
     }
 
     @Bean
@@ -64,7 +81,7 @@ public class NSEBulkDealBatchConfiguration extends DefaultBatchConfigurer {
         lineTokenizer.setStrict(false);
         lineTokenizer.setNames(new String[] {"id", "date","symbol","securityName","clientName","transactionType","quantityTraded","tradePrice","remark"});
 
-        BeanWrapperFieldSetMapper<NSEBulkDeal> fieldExtractor = new BeanWrapperFieldSetMapper<>();
+        BeanWrapperFieldSetMapper<NSEBulkDeal> fieldExtractor = new BeanWrapperFieldSetMapperCustom<>();
         fieldExtractor.setTargetType(NSEBulkDeal.class);
         defaultLineMapper.setLineTokenizer(lineTokenizer);
         defaultLineMapper.setFieldSetMapper(fieldExtractor);

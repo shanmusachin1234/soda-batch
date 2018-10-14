@@ -4,6 +4,7 @@ import com.soda.nse.batch.model.NSEBulkDeal;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,8 +15,7 @@ public class NSEBulkDealBatchProcessor implements ItemProcessor<NSEBulkDeal, NSE
 
     @Override
     public NSEBulkDeal process(NSEBulkDeal item) throws Exception {
-        String date = item.getDate();
-        date.replace("\"","");
+        LocalDate date = item.getDate();
         item.setDate(date);
         String symbol = item.getSymbol();
         symbol.replace("\"","");

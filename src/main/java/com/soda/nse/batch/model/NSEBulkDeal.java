@@ -1,23 +1,31 @@
 package com.soda.nse.batch.model;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDate;
 
-@Document
+
+@Document(
+        collection = "nseBulkDeal"
+)
 public class NSEBulkDeal {
     @Id
     private Long id;
-    private String date;
+    @Indexed(name = "dateIndex", background = true)
+    private LocalDate date;
+    @Indexed(name = "symbolIndex", background = true)
     private String symbol;
     private String securityName;
+    @Indexed(name = "traderIndex", background = true)
     private String clientName;
     private String transactionType;
     private String quantityTraded;
     private String tradePrice;
     private String remark;
 
-    public NSEBulkDeal(Long id, String date, String symbol, String securityName,
+    public NSEBulkDeal(Long id, LocalDate date, String symbol, String securityName,
                        String clientName, String transactionType,
                        String quantityTraded, String tradePrice, String remark) {
         this.id = id;
@@ -42,11 +50,11 @@ public class NSEBulkDeal {
         this.id = id;
     }
 
-    public String getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 

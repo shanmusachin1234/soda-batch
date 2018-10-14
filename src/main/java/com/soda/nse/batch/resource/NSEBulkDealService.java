@@ -45,10 +45,22 @@ public class NSEBulkDealService {
 
         return jobExecution.getStatus();
     }
-    
+
     @GetMapping("/all")
     public List<NSEBulkDeal> getAll() {
         return NSEBulkDealRepository.findAll();
+    }
+
+    @GetMapping("/count")
+    public long getCount() {
+        return NSEBulkDealRepository.count();
+    }
+
+    @GetMapping("/year")
+    public List<NSEBulkDeal> getYearCount() {
+        List<NSEBulkDeal> byCustomQuery = NSEBulkDealRepository.findByCustomQuery(2016);
+        System.out.println("byCustomQuery "+ byCustomQuery.size());
+        return byCustomQuery;
     }
 
 //    private NSEBulkDealRepository NSEBulkDealRepository;
